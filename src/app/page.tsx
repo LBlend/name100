@@ -29,6 +29,7 @@ function Home() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [timer, setTimer] = useState(0);
   const [timerStarted, setTimerStarted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [howToPlayOpen, setHowToPlayOpen] = useState(false);
   const [repeatMessage, setRepeatMessage] = useState("");
@@ -82,24 +83,33 @@ function Home() {
       return;
     }
     setRepeatMessage("");
-    const res = await fetch("/api/guess", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ input: trimmedInput }),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.name && matches.some((m) => m.name && m.name.toLowerCase() === data.name.toLowerCase())) {
-        setRepeatMessage(t.alreadySubmitted);
-        setInput("");
-        return;
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/guess", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: trimmedInput }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.name && matches.some((m) => m.name && m.name.toLowerCase() === data.name.toLowerCase())) {
+          setRepeatMessage(t.alreadySubmitted);
+          setInput("");
+          return;
+        }
+        setMatches((prev) => [...prev, { input: trimmedInput, ...data }]);
+        if (data.correct && !timerStarted) {
+          startTimer();
+        }
       }
-      setMatches((prev) => [...prev, { input: trimmedInput, ...data }]);
-      if (data.correct && !timerStarted) {
-        startTimer();
-      }
+    } catch (error) {
+      console.error("Error submitting guess:", error);
+      setRepeatMessage("An error occurred while submitting your guess. Please try again.");
+    } finally {
+      setLoading(false);
+      setInput("");
     }
-    setInput("");
   };
 
   return (
@@ -124,6 +134,7 @@ function Home() {
           }}
           onSubmit={handleSubmit}
           disabled={correctMatchesCount === GOAL_AMOUNT}
+          loading={loading}
         />
         <Score matchesCount={correctMatchesCount} />
         {repeatMessage && <div className="mb-2 font-semibold text-red-500">{repeatMessage}</div>}
