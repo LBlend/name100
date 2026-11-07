@@ -31,6 +31,7 @@ function Home() {
   const [timerStarted, setTimerStarted] = useState(false);
   const [loading, setLoading] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const gameRef = useRef(0);
   const [howToPlayOpen, setHowToPlayOpen] = useState(false);
   const [repeatMessage, setRepeatMessage] = useState("");
   const { language } = useLanguage();
@@ -66,12 +67,14 @@ function Home() {
   }, [correctMatchesCount]);
 
   const handleRestart = () => {
+    gameRef.current += 1;
     stopTimer();
     setTimer(0);
     setTimerStarted(false);
     setMatches([]);
     setInput("");
     setRepeatMessage("");
+    setLoading(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,6 +87,7 @@ function Home() {
     }
     setRepeatMessage("");
     setLoading(true);
+    const game = gameRef.current;
 
     try {
       const res = await fetch("/api/guess", {
@@ -95,6 +99,7 @@ function Home() {
         throw new Error(`Guess request failed with status ${res.status}`);
       }
       const data: Match = await res.json();
+      if (game !== gameRef.current) return;
       setInput((current) => (current === input ? "" : current));
       if (data.name && matches.some((m) => m.name?.toLowerCase() === data.name?.toLowerCase())) {
         setRepeatMessage(t.alreadySubmitted);
@@ -106,9 +111,13 @@ function Home() {
       }
     } catch (error) {
       console.error("Error submitting guess:", error);
-      setRepeatMessage(t.guessFailed);
+      if (game === gameRef.current) {
+        setRepeatMessage(t.guessFailed);
+      }
     } finally {
-      setLoading(false);
+      if (game === gameRef.current) {
+        setLoading(false);
+      }
     }
   };
 
