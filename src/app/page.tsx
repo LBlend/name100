@@ -31,6 +31,7 @@ function Home() {
   const [timerStarted, setTimerStarted] = useState(false);
   const [loading, setLoading] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef(0);
   const gameRef = useRef(0);
   const [howToPlayOpen, setHowToPlayOpen] = useState(false);
   const [repeatMessage, setRepeatMessage] = useState("");
@@ -39,12 +40,15 @@ function Home() {
 
   const correctMatchesCount = useMemo(() => matches.filter((m) => m.correct).length, [matches]);
 
+  const updateTimer = () => {
+    setTimer(Math.floor((Date.now() - startTimeRef.current) / 1000));
+  };
+
   const startTimer = () => {
     if (!timerStarted) {
       setTimerStarted(true);
-      timerRef.current = setInterval(() => {
-        setTimer((prev) => prev + 1);
-      }, 1000);
+      startTimeRef.current = Date.now();
+      timerRef.current = setInterval(updateTimer, 250);
     }
   };
 
@@ -62,6 +66,7 @@ function Home() {
   // Stop timer when 100 correct guesses are made
   React.useEffect(() => {
     if (correctMatchesCount === GOAL_AMOUNT) {
+      updateTimer();
       stopTimer();
     }
   }, [correctMatchesCount]);
