@@ -127,7 +127,7 @@ function Home() {
   };
 
   return (
-    <div className="grid min-h-dvh grid-rows-[auto,1fr,auto] pt-15">
+    <div className="grid min-h-dvh grid-rows-[auto_1fr_auto] pt-15">
       <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
         <LanguageMenu />
         <HowToPlayButton onClick={() => setHowToPlayOpen(true)} ariaLabel={t.howToPlayTitle} />
