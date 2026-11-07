@@ -2,6 +2,7 @@ export const translations = {
   en: {
     submittedAnswers: "Submitted Answers",
     alreadySubmitted: "You have already entered that name!",
+    guessFailed: "Something went wrong while checking your guess. Please try again.",
     placeholder: "Enter a famous Norwegian's name...",
     submit: "Submit",
     loading: "Loading...",
@@ -18,6 +19,7 @@ export const translations = {
   no: {
     submittedAnswers: "Dine svar",
     alreadySubmitted: "Du har allerede skrevet det navnet!",
+    guessFailed: "Noe gikk galt da svaret ditt skulle sjekkes. Prøv igjen.",
     placeholder: "Skriv inn navnet på en kjent nordmann...",
     submit: "Send",
     loading: "Laster...",

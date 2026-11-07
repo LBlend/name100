@@ -91,24 +91,24 @@ function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ input: trimmedInput }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.name && matches.some((m) => m.name && m.name.toLowerCase() === data.name.toLowerCase())) {
-          setRepeatMessage(t.alreadySubmitted);
-          setInput("");
-          return;
-        }
-        setMatches((prev) => [...prev, { input: trimmedInput, ...data }]);
-        if (data.correct && !timerStarted) {
-          startTimer();
-        }
+      if (!res.ok) {
+        throw new Error(`Guess request failed with status ${res.status}`);
+      }
+      const data: Match = await res.json();
+      setInput((current) => (current === input ? "" : current));
+      if (data.name && matches.some((m) => m.name?.toLowerCase() === data.name?.toLowerCase())) {
+        setRepeatMessage(t.alreadySubmitted);
+        return;
+      }
+      setMatches((prev) => [...prev, { ...data, input: trimmedInput }]);
+      if (data.correct && !timerStarted) {
+        startTimer();
       }
     } catch (error) {
       console.error("Error submitting guess:", error);
-      setRepeatMessage("An error occurred while submitting your guess. Please try again.");
+      setRepeatMessage(t.guessFailed);
     } finally {
       setLoading(false);
-      setInput("");
     }
   };
 
