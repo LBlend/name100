@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.0](https://github.com/LBlend/name100/compare/name100-0.1.0...name100-0.2.0) (2026-11-07)
+## [0.2.0](https://github.com/LBlend/name100/compare/0.1.0...0.2.0) (2026-11-07)
 
 
 ### Features
