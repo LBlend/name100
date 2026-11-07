@@ -13,7 +13,7 @@ import HowToPlayButton from "./components/HowToPlayButton";
 import LanguageMenu from "./components/LanguageMenu";
 import RestartButton from "./components/RestartButton";
 import Score from "./components/Score";
-import Timer from "./components/Timer";
+import Timer, { formatTime } from "./components/Timer";
 import type { Match } from "./types";
 
 export default function HomePageWithLanguage() {
@@ -39,6 +39,7 @@ function Home() {
   const t = translations[language];
 
   const correctMatchesCount = useMemo(() => matches.filter((m) => m.correct).length, [matches]);
+  const goalReached = correctMatchesCount >= GOAL_AMOUNT;
 
   const updateTimer = () => {
     setTimer(Math.floor((Date.now() - startTimeRef.current) / 1000));
@@ -65,11 +66,11 @@ function Home() {
 
   // Stop timer when 100 correct guesses are made
   React.useEffect(() => {
-    if (correctMatchesCount === GOAL_AMOUNT) {
+    if (goalReached) {
       updateTimer();
       stopTimer();
     }
-  }, [correctMatchesCount]);
+  }, [goalReached]);
 
   const handleRestart = () => {
     gameRef.current += 1;
@@ -147,10 +148,15 @@ function Home() {
             setRepeatMessage("");
           }}
           onSubmit={handleSubmit}
-          disabled={correctMatchesCount === GOAL_AMOUNT}
+          disabled={goalReached}
           loading={loading}
         />
         <Score matchesCount={correctMatchesCount} />
+        {goalReached && (
+          <p className="text-xl font-bold text-green-600">
+            {t.goalReached.replace("{count}", String(GOAL_AMOUNT)).replace("{time}", formatTime(timer))}
+          </p>
+        )}
         {repeatMessage && <div className="mb-2 font-semibold text-red-500">{repeatMessage}</div>}
         {matches.length > 0 && (
           <>
