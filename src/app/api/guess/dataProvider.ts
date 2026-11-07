@@ -18,8 +18,17 @@ function isNorwegianPerson(item: NorwegianPersonItem): boolean {
   return /(norsk|norske|norges|norge)/i.test(combinedText);
 }
 
+function isSnlUrl(url: string): boolean {
+  try {
+    const { protocol, hostname } = new URL(url);
+    return protocol === "https:" && (hostname === "snl.no" || hostname.endsWith(".snl.no"));
+  } catch {
+    return false;
+  }
+}
+
 async function fetchDescription(articleUrl: string | undefined): Promise<string | undefined> {
-  if (!articleUrl) return undefined;
+  if (!articleUrl || !isSnlUrl(articleUrl)) return undefined;
   try {
     const response = await fetch(articleUrl, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
     if (!response.ok) return undefined;
