@@ -12,6 +12,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 
-  const match: Match = await findNorwegianPerson(input);
-  return NextResponse.json(match);
+  try {
+    const match: Match = await findNorwegianPerson(input);
+    return NextResponse.json(match);
+  } catch (error) {
+    console.error("Failed to look up guess:", error);
+    return NextResponse.json({ error: "Lookup failed" }, { status: 502 });
+  }
 }
